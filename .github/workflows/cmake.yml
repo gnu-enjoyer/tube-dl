@@ -1,0 +1,42 @@
+name: CMake
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release 
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+      
+    steps:
+    - uses: actions/checkout@v3    
+    
+    - name: Prepare dependencies
+      run: sudo apt-get update &&  sudo apt-get install -y valgrind libjsoncpp-dev libssl-dev g++-11 && sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 99
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      
+    - name: Cache Drogon
+      id: cache-drogon
+      uses: actions/cache@v3
+      with:
+        path: ${{github.workspace}}/build
+        key: ${{ runner.os }}-drogoncache
+
+    - name: Generate Cache
+      if: steps.cache-drogon.outputs.cache-hit != 'true'
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Use Cache
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target tubedl tubedl-tests
+
+ #   - name: Test
+ #     working-directory: ${{github.workspace}}/build
+ #     run: ./tubedl && ctest -C ${{env.BUILD_TYPE}} tubedl --output-on-failure      
