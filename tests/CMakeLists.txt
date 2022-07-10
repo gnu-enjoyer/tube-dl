@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(
     tubedl-tests
+    ${CMAKE_SOURCE_DIR}/src/api.cpp
     tests.cpp
     )
 
@@ -16,7 +17,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/martinus/nanobench.git
     GIT_TAG 26a9c089ca54927c1658c046749ca1b8fd60422c
     GIT_SHALLOW TRUE
-)
+    )
 
 FetchContent_MakeAvailable(nanobench)
 
@@ -38,4 +39,4 @@ ParseAndAddDrogonTests(tubedl-tests)
 add_test(
     NAME tubedl
     COMMAND tubedl-tests
-)
+    )
