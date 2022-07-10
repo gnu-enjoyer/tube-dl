@@ -34,9 +34,9 @@ jobs:
       if: steps.cache-drogon.outputs.cache-hit != 'true'
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-    - name: Use Cache
+    - name: Use Cache to Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target tubedl tubedl-tests
 
- #   - name: Test
- #     working-directory: ${{github.workspace}}/build
- #     run: ./tubedl && ctest -C ${{env.BUILD_TYPE}} tubedl --output-on-failure      
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}} -R tubedl --output-on-failure   
