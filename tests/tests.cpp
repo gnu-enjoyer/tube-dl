@@ -1,24 +1,24 @@
 #define DROGON_TEST_MAIN
 #define ANKERL_NANOBENCH_IMPLEMENT
+#include "api.h"
 #include <drogon/HttpTypes.h>
 #include <drogon/drogon.h>
 #include <drogon/drogon_test.h>
 #include <nanobench.h>
-#include "api.h"
+
+static const std::string test_ip = "http://127.0.0.1:3002";
 
 DROGON_TEST(CoreAPITest) {
 
   /* Check default route */
-
-  auto client = drogon::HttpClient::newHttpClient("http://127.0.0.1:3002");
+  auto client = drogon::HttpClient::newHttpClient(test_ip);
 
   auto req = drogon::HttpRequest::newHttpRequest();
 
   req->setPath("/");
 
-  client->sendRequest(req, 
-  [TEST_CTX](drogon::ReqResult res, const drogon::HttpResponsePtr &resp) 
-  {
+  client->sendRequest(req, [TEST_CTX](drogon::ReqResult res,
+                                      const drogon::HttpResponsePtr &resp) {
     REQUIRE(res == drogon::ReqResult::Ok);
 
     REQUIRE(resp != nullptr);
@@ -32,16 +32,14 @@ DROGON_TEST(CoreAPITest) {
 DROGON_TEST(QueryAPITest) {
 
   /* Check query route */
-
-  auto client = drogon::HttpClient::newHttpClient("http://127.0.0.1:3002");
+  auto client = drogon::HttpClient::newHttpClient(test_ip);
 
   auto req = drogon::HttpRequest::newHttpRequest();
 
   req->setPath("/query");
-  
-  client->sendRequest(req,
-   [TEST_CTX](drogon::ReqResult res, const drogon::HttpResponsePtr &resp) 
-   {
+
+  client->sendRequest(req, [TEST_CTX](drogon::ReqResult res,
+                                      const drogon::HttpResponsePtr &resp) {
     REQUIRE(res == drogon::ReqResult::Ok);
 
     REQUIRE(resp != nullptr);
@@ -50,25 +48,39 @@ DROGON_TEST(QueryAPITest) {
   });
 }
 
+DROGON_TEST(BenchmarkQueryAPI){
+    ankerl::nanobench::Bench().run("Query API Benchmark", [TEST_CTX] {
+    auto client = drogon::HttpClient::newHttpClient(test_ip);
+
+    auto req = drogon::HttpRequest::newHttpRequest();
+
+    req->setPath("/query");
+
+    client->sendRequest(req, [TEST_CTX](drogon::ReqResult res,
+                                        const drogon::HttpResponsePtr &resp) {});
+  });
+}
+
 int main(int argc, char **argv) {
 
-    std::promise<void> p1;
+  std::promise<void> p1;
 
-    std::future<void> f1 = p1.get_future();
+  std::future<void> f1 = p1.get_future();
 
-    std::jthread thr([&]() {
-        drogon::app().getLoop()->queueInLoop([&p1]() { p1.set_value(); });
+  std::jthread thr([&p1]() 
+  {
+    drogon::app().getLoop()->queueInLoop([&p1]() { p1.set_value(); });
+  
+    drogon::app().addListener("0.0.0.0", 3002).run();
+  });
 
-        drogon::app().addListener("0.0.0.0", 3002).run();
-    });
+  f1.get();
 
-    f1.get();
+  int status = drogon::test::run(argc, argv);
 
-    int status = drogon::test::run(argc, argv);
+  drogon::app().getLoop()->queueInLoop([]() { drogon::app().quit(); });
 
-    drogon::app().getLoop()->queueInLoop([]() { drogon::app().quit(); });
+  thr.join();
 
-    thr.join();
-
-    return status;
+  return status;
 }
