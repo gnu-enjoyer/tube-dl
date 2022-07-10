@@ -1,0 +1,20 @@
+# Dependencies
+_deps/
+
+# Artefacts
+build/
+
+# Cache
+.cache
+
+# CMake / Make
+CMakeFiles/
+Makefile
+*.cmake
+CMakeCache.txt
+
+# IDE
+.vscode
+
+# Logs
+*.log
