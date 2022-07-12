@@ -6,8 +6,6 @@ namespace controllers {
 
 class API : public drogon::HttpController<API> {
 
-  static std::optional<std::string> GrabPlayerJs(std::string_view str);
-
   drogon::Task<std::string> Decrypt(std::string str) const;
 
   drogon::Task<std::string> GetPlayer(std::string str) const;

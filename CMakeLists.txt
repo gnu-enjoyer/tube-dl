@@ -15,8 +15,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_executable(tubedl
-        src/api.cpp
-        src/main.cpp)
+    src/parser.cpp
+    src/api.cpp
+    src/main.cpp
+    )
 
 if(UNIX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")

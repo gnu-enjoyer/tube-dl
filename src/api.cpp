@@ -3,22 +3,9 @@
 #include "drogon/HttpRequest.h"
 #include "drogon/HttpResponse.h"
 #include "drogon/HttpTypes.h"
-#include <ctre.hpp>
+#include "parser.h"
 #include <optional>
 #include <string>
-
-static constexpr auto id_pattern = ctll::fixed_string{"([a-zA-Z0-9]+)"};
-
-static constexpr bool ValidateInput(const std::string &str) {
-  return ctre::match<id_pattern>(str);
-};
-
-std::optional<std::string>
-controllers::API::GrabPlayerJs(std::string_view str) {
-  auto m = ctre::search<R"((?:PLAYER_JS_URL|jsUrl)\"\s*:\s*\"([^"]+))">(str);
-
-  return m ? m.get<1>().to_string() : std::optional<std::string>{};
-}
 
 drogon::Task<std::string> controllers::API::Decrypt(std::string str) const {
   auto cli = drogon::HttpClient::newHttpClient("https://www.youtube.com");
@@ -45,7 +32,7 @@ drogon::Task<std::string> controllers::API::GetPlayer(std::string str) const {
 
   auto result = co_await cli->sendRequestCoro(req);
 
-  co_return GrabPlayerJs(result->getBody()).value_or("Error");
+  co_return Parser::GrabPlayerJs(result->getBody()).value_or("Error");
 }
 
 void controllers::API::Entry(
@@ -67,7 +54,7 @@ drogon::AsyncTask controllers::API::Query(
 
   if (std::string str = req->getParameter("v"); str.size() == 11) {
 
-    if (!ValidateInput(str))
+    if (!Parser::ValidateInput(str))
       co_return;
 
     auto Js = co_await GetPlayer(str);

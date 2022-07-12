@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(
     tubedl-tests
+    ${CMAKE_SOURCE_DIR}/src/parser.cpp
     ${CMAKE_SOURCE_DIR}/src/api.cpp
     tests.cpp
     )
