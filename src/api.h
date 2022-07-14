@@ -6,6 +6,11 @@ namespace controllers {
 
 class API : public drogon::HttpController<API> {
 
+  static drogon::HttpResponsePtr simpleResponse(drogon::HttpStatusCode E);
+
+  static drogon::HttpRequestPtr buildRequest(const std::string &str,
+                                             bool first = true);
+
   drogon::Task<std::string> Decrypt(std::string str) const;
 
   drogon::Task<std::string> GetPlayer(std::string str) const;
@@ -17,7 +22,9 @@ public:
   METHOD_LIST_END
 
   void Entry(const drogon::HttpRequestPtr &req,
-             std::function<void(const drogon::HttpResponsePtr &)> &&callback);
+             std::function<void(const drogon::HttpResponsePtr &)> &&callback) {
+    callback(simpleResponse(drogon::HttpStatusCode::k400BadRequest));
+  };
 
   drogon::AsyncTask
   Query(const drogon::HttpRequestPtr req,

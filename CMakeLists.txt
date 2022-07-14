@@ -32,13 +32,25 @@ if(UNIX)
     )
 
     FetchContent_Declare(
+        simdjson
+        GIT_REPOSITORY https://github.com/simdjson/simdjson.git
+        GIT_TAG 1075e8609c4afa253162d441437af929c29e31bb
+    )
+
+    FetchContent_Declare(
+        re2
+        GIT_REPOSITORY https://github.com/google/re2.git
+        GIT_TAG 0dade9ff39bb6276f18dd6d4bc12d3c20479ee24
+    )
+
+    FetchContent_Declare(
         ctre
         GIT_REPOSITORY https://github.com/hanickadot/compile-time-regular-expressions.git
         GIT_TAG 331aebc79d715d1d0036d2d32021584eefecbcc9
         GIT_SHALLOW TRUE
     )
 
-    FetchContent_MakeAvailable(Drogon ctre)
+    FetchContent_MakeAvailable(Drogon simdjson re2 ctre)
 
     add_library(tubelibs
     INTERFACE
@@ -46,7 +58,9 @@ if(UNIX)
 
     target_link_libraries(tubelibs
     INTERFACE
-    drogon          
+    drogon      
+    simdjson
+    re2    
     ctre    
     )
 

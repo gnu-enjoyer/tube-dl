@@ -7,43 +7,45 @@
 #include <optional>
 #include <string>
 
-drogon::Task<std::string> controllers::API::Decrypt(std::string str) const {
-  auto cli = drogon::HttpClient::newHttpClient("https://www.youtube.com");
+drogon::HttpResponsePtr
+controllers::API::simpleResponse(drogon::HttpStatusCode E) {
+
+  auto resp = drogon::HttpResponse::newHttpResponse();
+
+  resp->setStatusCode(E);
+
+  return resp;
+}
+
+drogon::HttpRequestPtr controllers::API::buildRequest(const std::string &str,
+                                                      bool first) {
 
   auto req = drogon::HttpRequest::newHttpRequest();
 
-  req->setPath(str);
+  first ? req->setPath(str) : req->setPath("/watch");
 
-  auto result = co_await cli->sendRequestCoro(req);
+  req->setParameter("v", str);
 
-  // TODO Add CTRE class for processing Js into final form
-  // co_return std::string(result->getBody());
-  co_return str;
+  return req;
+};
+
+drogon::Task<std::string> controllers::API::Decrypt(std::string str) const {
+
+  auto cli = drogon::HttpClient::newHttpClient("https://www.youtube.com");
+
+  auto result = co_await cli->sendRequestCoro(buildRequest(str));
+
+  co_return (Parser::Parse(result->getBody())).value_or("Error");
 }
 
 drogon::Task<std::string> controllers::API::GetPlayer(std::string str) const {
   auto cli = drogon::HttpClient::newHttpClient("https://www.youtube.com");
 
-  auto req = drogon::HttpRequest::newHttpRequest();
+  auto result = co_await cli->sendRequestCoro(buildRequest(str, false));
 
-  req->setPath("/watch");
-
-  req->setParameter("v", str);
-
-  auto result = co_await cli->sendRequestCoro(req);
+  // if(Parser::ParseJSON(result->getBody())){}
 
   co_return Parser::GrabPlayerJs(result->getBody()).value_or("Error");
-}
-
-void controllers::API::Entry(
-    const drogon::HttpRequestPtr &req,
-    std::function<void(const drogon::HttpResponsePtr &)> &&callback) {
-
-  auto resp = drogon::HttpResponse::newHttpResponse();
-
-  resp->setStatusCode(drogon::HttpStatusCode::k400BadRequest);
-
-  callback(resp);
 }
 
 drogon::AsyncTask controllers::API::Query(
