@@ -1,5 +1,9 @@
-# tube-dl
-C++20 coroutine powered microservice alternative to ytdl for decrypting YouTube links
+# tube-dl <a href="https://gitpod.io/#<your-project-url>">
+[![Open in Gitpod](https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/gnu-enjoyer/tubedl)
+
+- - -
+
+C++20 coroutines powered microservice alternative to ytdl for decrypting YouTube links
 
 Built on-top of world fastest HTTP framework: Drogon and uses compile-time regular expressions (CTRE) for high speed and max throughput
 
@@ -12,10 +16,4 @@ Built on-top of world fastest HTTP framework: Drogon and uses compile-time regul
 - [x] Core Class API
 - [ ] SIMD JSON support
 - [ ] Decipher subroutines
-- [ ] Containerisation
-
-- - -
-
-Supports one-click deployment via:
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/gnu-enjoyer/tubedl)
+- [x] Containerisation
